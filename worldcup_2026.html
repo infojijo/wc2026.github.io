@@ -1,0 +1,712 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FIFA World Cup 2026</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #8e2de2 0%, #4a00e0 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #fff;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 40px 20px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255, 215, 0, 0.3);
+        }
+        
+        .header h1 {
+            font-size: 3.5em;
+            margin-bottom: 15px;
+            background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: 0 0 30px rgba(255, 215, 0, 0.3);
+        }
+        
+        .header .subtitle {
+            font-size: 1.3em;
+            color: #ffd700;
+            margin-bottom: 20px;
+        }
+        
+        .tournament-info {
+            background: rgba(255, 215, 0, 0.1);
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            border: 2px solid rgba(255, 215, 0, 0.3);
+            backdrop-filter: blur(10px);
+        }
+        
+        .tournament-info h3 {
+            color: #ffd700;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+
+        .tournament-info h4 {
+            color: #ffd700;
+            margin-bottom: 12px;
+            font-size: 1.1em;
+        }
+        
+        .stages-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .stage-badge {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 10px;
+            border-radius: 8px;
+            text-align: center;
+            font-size: 0.85em;
+        }
+        
+        .stage-badge strong {
+            display: block;
+            color: #ffd700;
+            margin-bottom: 5px;
+        }
+        
+        .controls {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+        
+        .btn {
+            padding: 12px 24px;
+            background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
+            border: none;
+            border-radius: 8px;
+            color: #4a00e0;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 14px;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(255, 215, 0, 0.5);
+        }
+        
+        #loading {
+            text-align: center;
+            padding: 60px;
+        }
+        
+        .spinner {
+            border: 4px solid rgba(255, 255, 255, 0.1);
+            border-top: 4px solid #ffd700;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .matches-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(450px, 1fr));
+            gap: 25px;
+            margin-top: 30px;
+        }
+        
+        .match-card {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            padding: 25px;
+            transition: all 0.3s;
+            border: 2px solid rgba(255, 215, 0, 0.2);
+            backdrop-filter: blur(10px);
+        }
+        
+        .match-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(255, 215, 0, 0.3);
+            border-color: rgba(255, 215, 0, 0.5);
+        }
+        
+        .match-status {
+            text-align: center;
+            margin-bottom: 15px;
+            font-size: 0.85em;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+        
+        .status-live {
+            color: #ff4757;
+            animation: pulse 2s infinite;
+            font-size: 1.1em;
+        }
+        
+        .status-finished {
+            color: #7bed9f;
+        }
+        
+        .status-scheduled {
+            color: #ffd700;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        .match-teams {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 20px 0;
+        }
+        
+        .team {
+            flex: 1;
+            text-align: center;
+        }
+        
+        .team-flag {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 10px;
+            border-radius: 50%;
+            overflow: hidden;
+            border: 3px solid rgba(255, 215, 0, 0.3);
+            background: white;
+            padding: 5px;
+        }
+        
+        .team-flag img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+        
+        .team-name {
+            font-size: 1.1em;
+            font-weight: 700;
+            margin-bottom: 5px;
+            color: #ffd700;
+        }
+        
+        .score-separator {
+            font-size: 2.5em;
+            font-weight: 700;
+            color: #ffd700;
+            padding: 0 20px;
+        }
+        
+        .score {
+            font-size: 3em;
+            font-weight: 700;
+            color: #ffd700;
+            margin: 10px 0;
+            text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+        }
+        
+        .match-info {
+            text-align: center;
+            padding-top: 15px;
+            border-top: 2px solid rgba(255, 215, 0, 0.2);
+            margin-top: 15px;
+        }
+        
+        .match-venue {
+            font-size: 0.9em;
+            opacity: 0.8;
+            margin-bottom: 5px;
+        }
+        
+        .match-time {
+            font-size: 1em;
+            color: #ffd700;
+            font-weight: 600;
+        }
+        
+        .no-matches {
+            text-align: center;
+            padding: 80px 20px;
+            font-size: 1.3em;
+            opacity: 0.6;
+        }
+        
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+        
+        .stat-card {
+            background: rgba(255, 215, 0, 0.1);
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            border: 2px solid rgba(255, 215, 0, 0.3);
+        }
+        
+        .stat-number {
+            font-size: 2.5em;
+            font-weight: 700;
+            color: #ffd700;
+        }
+        
+        .stat-label {
+            font-size: 0.9em;
+            opacity: 0.8;
+            margin-top: 5px;
+        }
+        
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+            
+            .header h1 {
+                font-size: 2em;
+            }
+            
+            .matches-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .team-flag {
+                width: 60px;
+                height: 60px;
+            }
+            
+            .score {
+                font-size: 2em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🏆 FIFA WORLD CUP 2026 🏆</h1>
+            <p class="subtitle">USA • Canada • Mexico</p>
+            <p style="opacity: 0.7; font-size: 0.9em;">June 11 - July 19, 2026</p>
+        </div>
+        
+        <div class="tournament-info">
+            <h3>📅 Tournament Schedule</h3>
+            <div class="stages-grid">
+                <div class="stage-badge">
+                    <strong>Group Stage</strong>
+                    <span>Jun 11-27</span>
+                </div>
+                <div class="stage-badge">
+                    <strong>Round of 32</strong>
+                    <span>Jun 28-Jul 3</span>
+                </div>
+                <div class="stage-badge">
+                    <strong>Round of 16</strong>
+                    <span>Jul 4-7</span>
+                </div>
+                <div class="stage-badge">
+                    <strong>Quarterfinals</strong>
+                    <span>Jul 9-11</span>
+                </div>
+                <div class="stage-badge">
+                    <strong>Semifinals</strong>
+                    <span>Jul 14-15</span>
+                </div>
+                <div class="stage-badge">
+                    <strong>Final</strong>
+                    <span>Jul 19</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="tournament-info">
+            <h3>🏟️ All Host Cities & Stadiums (16 Venues)</h3>
+            <p style="opacity: 0.8; margin-bottom: 20px; font-size: 0.9em;">104 Total Matches Across 3 Nations</p>
+            
+            <div style="margin-bottom: 25px;">
+                <h4>🍁 CANADA (2 Cities - ~13 matches)</h4>
+                <div class="stages-grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));">
+                    <div class="stage-badge">
+                        <strong>Toronto, ON</strong>
+                        <span>BMO Field</span>
+                        <span style="font-size: 0.8em; opacity: 0.7;">45,500 capacity</span>
+                    </div>
+                    <div class="stage-badge">
+                        <strong>Vancouver, BC</strong>
+                        <span>BC Place</span>
+                        <span style="font-size: 0.8em; opacity: 0.7;">54,500 capacity</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div style="margin-bottom: 25px;">
+                <h4>🦅 UNITED STATES (11 Cities - ~78 matches)</h4>
+                <div class="stages-grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));">
+                    <div class="stage-badge">
+                        <strong>Seattle, WA</strong>
+                        <span>Lumen Field</span>
+                        <span style="font-size: 0.8em; opacity: 0.7;">69,000 capacity</span>
+                    </div>
+                    <div class="stage-badge">
+                        <strong>San Francisco, CA</strong>
+                        <span>Levi's Stadium</span>
+                        <span style="font-size: 0.8em; opacity: 0.7;">70,000 capacity</span>
+                    </div>
+                    <div class="stage-badge">
+                        <strong>Los Angeles, CA</strong>
+                        <span>SoFi Stadium</span>
+                        <span style="font-size: 0.8em; opacity: 0.7;">70,000 capacity</span>
+                    </div>
+                    <div class="stage-badge">
+                        <strong>Kansas City, MO</strong>
+                        <span>Arrowhead Stadium</span>
+                        <span style="font-size: 0.8em; opacity: 0.7;">76,400 capacity</span>
+                    </div>
+                    <div class="stage-badge">
+                        <strong>Dallas, TX</strong>
+                        <span>AT&T Stadium</span>
+                        <span style="font-size: 0.8em; opacity: 0.7;">80,000 • Semifinal</span>
+                    </div>
+                    <div class="stage-badge">
+                        <strong>Houston, TX</strong>
+                        <span>NRG Stadium</span>
+                        <span style="font-size: 0.8em; opacity: 0.7;">72,000 capacity</span>
+                    </div>
+                    <div class="stage-badge">
+                        <strong>Atlanta, GA</strong>
+                        <span>Mercedes-Benz Stadium</span>
+                        <span style="font-size: 0.8em; opacity: 0.7;">71,000 • Semifinal</span>
+                    </div>
+                    <div class="stage-badge">
+                        <strong>Miami, FL</strong>
+                        <span>Hard Rock Stadium</span>
+                        <span style="font-size: 0.8em; opacity: 0.7;">65,000 capacity</span>
+                    </div>
+                    <div class="stage-badge">
+                        <strong>Philadelphia, PA</strong>
+                        <span>Lincoln Financial Field</span>
+                        <span style="font-size: 0.8em; opacity: 0.7;">69,000 capacity</span>
+                    </div>
+                    <div class="stage-badge" style="border: 2px solid #ffd700;">
+                        <strong>New York/NJ</strong>
+                        <span>MetLife Stadium</span>
+                        <span style="font-size: 0.8em; color: #ffd700;">82,500 • FINAL 🏆</span>
+                    </div>
+                    <div class="stage-badge">
+                        <strong>Boston, MA</strong>
+                        <span>Gillette Stadium</span>
+                        <span style="font-size: 0.8em; opacity: 0.7;">65,000 capacity</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div>
+                <h4>🇲🇽 MEXICO (3 Cities - ~13 matches)</h4>
+                <div class="stages-grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));">
+                    <div class="stage-badge">
+                        <strong>Mexico City</strong>
+                        <span>Estadio Azteca</span>
+                        <span style="font-size: 0.8em; opacity: 0.7;">87,000 • Historic</span>
+                    </div>
+                    <div class="stage-badge">
+                        <strong>Guadalajara</strong>
+                        <span>Estadio Akron</span>
+                        <span style="font-size: 0.8em; opacity: 0.7;">46,000 capacity</span>
+                    </div>
+                    <div class="stage-badge">
+                        <strong>Monterrey</strong>
+                        <span>Estadio BBVA</span>
+                        <span style="font-size: 0.8em; opacity: 0.7;">53,500 capacity</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="tournament-info" style="background: linear-gradient(135deg, rgba(255, 0, 0, 0.15) 0%, rgba(200, 16, 46, 0.15) 100%); border-color: rgba(255, 0, 0, 0.4);">
+            <h3>🍁 ALL MATCHES IN CANADA (13 Total)</h3>
+            <p style="opacity: 0.9; margin-bottom: 20px; font-size: 0.95em;">Complete schedule of matches in Toronto & Vancouver</p>
+            
+            <div style="margin-bottom: 25px;">
+                <h4 style="color: #FF0000;">🏙️ TORONTO (BMO Field) - 6 Matches</h4>
+                <div style="background: rgba(255,255,255,0.03); padding: 15px; border-radius: 8px; margin-top: 10px;">
+                    <div style="margin-bottom: 12px; padding: 10px; background: rgba(255,255,255,0.05); border-radius: 6px; border-left: 3px solid #ffd700;">
+                        <strong style="color: #ffd700;">June 12, 2026 • 3:00 PM EDT</strong><br>
+                        <span style="font-size: 0.95em;">Bosnia-Herzegovina vs Canada 🍁</span>
+                    </div>
+                    <div style="margin-bottom: 12px; padding: 10px; background: rgba(255,255,255,0.05); border-radius: 6px;">
+                        <strong style="color: #ffd700;">June 17, 2026 • 7:00 PM EDT</strong><br>
+                        <span style="font-size: 0.95em;">Panama vs Ghana</span>
+                    </div>
+                    <div style="margin-bottom: 12px; padding: 10px; background: rgba(255,255,255,0.05); border-radius: 6px;">
+                        <strong style="color: #ffd700;">June 20, 2026 • 4:00 PM EDT</strong><br>
+                        <span style="font-size: 0.95em;">Ivory Coast vs Germany 🇩🇪</span>
+                    </div>
+                    <div style="margin-bottom: 12px; padding: 10px; background: rgba(255,255,255,0.05); border-radius: 6px;">
+                        <strong style="color: #ffd700;">June 23, 2026 • 7:00 PM EDT</strong><br>
+                        <span style="font-size: 0.95em;">Croatia vs Panama</span>
+                    </div>
+                    <div style="margin-bottom: 12px; padding: 10px; background: rgba(255,255,255,0.05); border-radius: 6px;">
+                        <strong style="color: #ffd700;">June 26, 2026 • 3:00 PM EDT</strong><br>
+                        <span style="font-size: 0.95em;">Iraq vs Senegal</span>
+                    </div>
+                    <div style="padding: 10px; background: rgba(255,255,255,0.05); border-radius: 6px;">
+                        <strong style="color: #ffd700;">July 2, 2026 • 7:00 PM EDT</strong><br>
+                        <span style="font-size: 0.95em;">Round of 32: Group L 2nd vs Group K 2nd</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div>
+                <h4 style="color: #FF0000;">🏔️ VANCOUVER (BC Place) - 7 Matches</h4>
+                <div style="background: rgba(255,255,255,0.03); padding: 15px; border-radius: 8px; margin-top: 10px;">
+                    <div style="margin-bottom: 12px; padding: 10px; background: rgba(255,255,255,0.05); border-radius: 6px;">
+                        <strong style="color: #ffd700;">June 14, 2026 • 12:00 AM EDT</strong><br>
+                        <span style="font-size: 0.95em;">Türkiye vs Australia</span>
+                    </div>
+                    <div style="margin-bottom: 12px; padding: 10px; background: rgba(255,255,255,0.05); border-radius: 6px; border-left: 3px solid #ffd700;">
+                        <strong style="color: #ffd700;">June 18, 2026 • 6:00 PM EDT</strong><br>
+                        <span style="font-size: 0.95em;">Qatar vs Canada 🍁</span>
+                    </div>
+                    <div style="margin-bottom: 12px; padding: 10px; background: rgba(255,255,255,0.05); border-radius: 6px;">
+                        <strong style="color: #ffd700;">June 22, 2026 • 9:00 PM EDT</strong><br>
+                        <span style="font-size: 0.95em;">Egypt vs New Zealand</span>
+                    </div>
+                    <div style="margin-bottom: 12px; padding: 10px; background: rgba(255,255,255,0.05); border-radius: 6px; border-left: 3px solid #ffd700;">
+                        <strong style="color: #ffd700;">June 24, 2026 • 3:00 PM EDT</strong><br>
+                        <span style="font-size: 0.95em;">Canada 🍁 vs Switzerland</span>
+                    </div>
+                    <div style="margin-bottom: 12px; padding: 10px; background: rgba(255,255,255,0.05); border-radius: 6px;">
+                        <strong style="color: #ffd700;">June 27, 2026 • 11:00 PM EDT</strong><br>
+                        <span style="font-size: 0.95em;">Belgium 🇧🇪 vs New Zealand</span>
+                    </div>
+                    <div style="margin-bottom: 12px; padding: 10px; background: rgba(255,255,255,0.05); border-radius: 6px;">
+                        <strong style="color: #ffd700;">July 3, 2026 • 11:00 PM EDT</strong><br>
+                        <span style="font-size: 0.95em;">Round of 32: 3rd Place (E/F/G/I/J) vs Group B Winner</span>
+                    </div>
+                    <div style="padding: 10px; background: rgba(255,255,255,0.05); border-radius: 6px;">
+                        <strong style="color: #ffd700;">July 7, 2026 • 4:00 PM EDT</strong><br>
+                        <span style="font-size: 0.95em;">Round of 16: Winner Match 15 vs Winner Match 13</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="stats">
+            <div class="stat-card">
+                <div class="stat-number" id="totalMatches">0</div>
+                <div class="stat-label">Total Matches</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="liveMatches">0</div>
+                <div class="stat-label">Live Matches</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="completedMatches">0</div>
+                <div class="stat-label">Completed</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="upcomingMatches">0</div>
+                <div class="stat-label">Upcoming</div>
+            </div>
+            <div class="stat-card" style="background: rgba(255, 0, 0, 0.15); border-color: rgba(255, 0, 0, 0.4);">
+                <div class="stat-number" id="canadaMatches" style="color: #FF0000;">0</div>
+                <div class="stat-label">🍁 Canada Matches</div>
+            </div>
+        </div>
+        
+        <div class="controls">
+            <button class="btn" onclick="loadAllMatches()">📅 All Matches</button>
+            <button class="btn" onclick="loadToday()">📍 Today's Matches</button>
+            <button class="btn" onclick="loadByCountry('Canada')">🍁 Canada</button>
+            <button class="btn" onclick="loadByCountry('USA')">🦅 USA</button>
+            <button class="btn" onclick="loadByCountry('Mexico')">🇲🇽 Mexico</button>
+        </div>
+        
+        <div id="loading">
+            <div class="spinner"></div>
+            <p>Loading World Cup matches...</p>
+        </div>
+        
+        <div id="matchesContainer"></div>
+    </div>
+
+    <script>
+        const API_BASE_URL = 'http://site.api.espn.com/apis/site/v2/sports/soccer/fifa.world/scoreboard?dates=20260611-20260720&limit=200';
+        let allMatches = [];
+        
+        $(document).ready(function() {
+            loadAllMatches();
+        });
+        
+        function loadAllMatches() {
+            $('#loading').show();
+            $('#matchesContainer').empty();
+            
+            $.ajax({
+                url: API_BASE_URL,
+                method: 'GET',
+                success: function(data) {
+                    console.log('API Response:', data);
+                    $('#loading').hide();
+                    allMatches = data.events || [];
+                    displayMatches(allMatches);
+                    updateStats(allMatches);
+                },
+                error: function(xhr, status, error) {
+                    $('#loading').hide();
+                    $('#matchesContainer').html(`
+                        <div class="no-matches">
+                            <h3>⚠️ Unable to Load Matches</h3>
+                            <p>Error loading World Cup data. Please try again.</p>
+                        </div>
+                    `);
+                }
+            });
+        }
+        
+        function loadToday() {
+            const today = new Date().toISOString().split('T')[0];
+            const todayMatches = allMatches.filter(match => {
+                const matchDate = new Date(match.date).toISOString().split('T')[0];
+                return matchDate === today;
+            });
+            displayMatches(todayMatches);
+        }
+        
+        function loadByCountry(country) {
+            const filtered = allMatches.filter(match => {
+                const matchCountry = match.competitions?.[0]?.venue?.address?.country || '';
+                return matchCountry.toLowerCase().includes(country.toLowerCase());
+            });
+            displayMatches(filtered);
+        }
+        
+        function displayMatches(matches) {
+            if (matches.length === 0) {
+                $('#matchesContainer').html('<div class="no-matches">No matches found</div>');
+                return;
+            }
+            
+            let matchesHtml = '<div class="matches-grid">';
+            
+            matches.forEach(event => {
+                const competition = event.competitions?.[0];
+                if (!competition) return;
+                
+                const homeTeam = competition.competitors?.find(c => c.homeAway === 'home');
+                const awayTeam = competition.competitors?.find(c => c.homeAway === 'away');
+                
+                const status = event.status?.type?.description || 'Scheduled';
+                const statusClass = getStatusClass(event.status?.type?.state);
+                
+                const homeScore = homeTeam?.score || '0';
+                const awayScore = awayTeam?.score || '0';
+                
+                const venue = competition.venue?.fullName || 'TBA';
+                const city = competition.venue?.address?.city || '';
+                const country = competition.venue?.address?.country || '';
+                const date = new Date(event.date);
+                const formattedDate = date.toLocaleDateString('en-US', { 
+                    weekday: 'short', 
+                    month: 'short', 
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+                
+                matchesHtml += `
+                    <div class="match-card">
+                        <div class="match-status ${statusClass}">
+                            ${status.toUpperCase()}
+                        </div>
+                        
+                        <div class="match-teams">
+                            <div class="team">
+                                <div class="team-flag">
+                                    <img src="${awayTeam?.team?.logo || ''}" alt="${awayTeam?.team?.displayName || 'Away'}">
+                                </div>
+                                <div class="team-name">${awayTeam?.team?.displayName || 'Away'}</div>
+                                <div class="score">${awayScore}</div>
+                            </div>
+                            
+                            <div class="score-separator">-</div>
+                            
+                            <div class="team">
+                                <div class="team-flag">
+                                    <img src="${homeTeam?.team?.logo || ''}" alt="${homeTeam?.team?.displayName || 'Home'}">
+                                </div>
+                                <div class="team-name">${homeTeam?.team?.displayName || 'Home'}</div>
+                                <div class="score">${homeScore}</div>
+                            </div>
+                        </div>
+                        
+                        <div class="match-info">
+                            <div class="match-venue">📍 ${venue}${city ? ', ' + city : ''}${country ? ', ' + country : ''}</div>
+                            <div class="match-time">🕐 ${formattedDate}</div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            matchesHtml += '</div>';
+            $('#matchesContainer').html(matchesHtml);
+        }
+        
+        function updateStats(matches) {
+            const total = matches.length;
+            const live = matches.filter(m => m.status?.type?.state === 'in').length;
+            const completed = matches.filter(m => m.status?.type?.state === 'post').length;
+            const upcoming = matches.filter(m => m.status?.type?.state === 'pre').length;
+            const canada = matches.filter(m => {
+                const country = m.competitions?.[0]?.venue?.address?.country || '';
+                return country.toLowerCase() === 'canada';
+            }).length;
+            
+            $('#totalMatches').text(total);
+            $('#liveMatches').text(live);
+            $('#completedMatches').text(completed);
+            $('#upcomingMatches').text(upcoming);
+            $('#canadaMatches').text(canada);
+        }
+        
+        function getStatusClass(state) {
+            if (state === 'in') return 'status-live';
+            if (state === 'post') return 'status-finished';
+            return 'status-scheduled';
+        }
+    </script>
+</body>
+</html>
